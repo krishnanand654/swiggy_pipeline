@@ -1,0 +1,9 @@
+{
+	"name": "swiggycasestudydfkk",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "7a0403fc-bbd9-4a3d-a703-6a36beaebe51",
+		"tenantId": "413d01c5-a84b-41b6-856f-ba02fb58162f"
+	}
+}
