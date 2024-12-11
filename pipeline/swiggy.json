@@ -1,9 +1,9 @@
 {
-	"name": "test1",
+	"name": "swiggy",
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
+				"name": "Git_to_DataLake",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
