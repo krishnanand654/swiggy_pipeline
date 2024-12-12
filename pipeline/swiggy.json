@@ -38,13 +38,13 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "Json1",
+						"referenceName": "sourcedataset",
 						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
 					{
-						"referenceName": "Json2",
+						"referenceName": "sinkdataset",
 						"type": "DatasetReference"
 					}
 				]

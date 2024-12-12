@@ -1,5 +1,5 @@
 {
-	"name": "Json2",
+	"name": "sinkdataset",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureDataLakeStorage1",
@@ -10,8 +10,9 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "jsondata",
-				"fileSystem": "swiggytestdata"
+				"fileName": "swiggy.json",
+				"folderPath": "json",
+				"fileSystem": "swiggydataset"
 			}
 		},
 		"schema": {}

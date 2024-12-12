@@ -1,5 +1,5 @@
 {
-	"name": "Json1",
+	"name": "sourcedataset",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "fromgithub",
