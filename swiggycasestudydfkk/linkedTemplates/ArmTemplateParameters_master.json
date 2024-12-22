@@ -8,11 +8,23 @@
 		"AzureDataLakeStorage1_accountKey": {
 			"value": ""
 		},
+		"sqlconnector_password": {
+			"value": ""
+		},
 		"AzureDataLakeStorage1_properties_typeProperties_url": {
 			"value": "https://swiggycasestudykk.dfs.core.windows.net/"
 		},
 		"fromgithub_properties_typeProperties_url": {
 			"value": "https://github.com/Jr-Newt/swiggy_dataset/raw/refs/heads/main/data.json"
+		},
+		"sqlconnector_properties_typeProperties_server": {
+			"value": "swiggy-dev-centralus.database.windows.net"
+		},
+		"sqlconnector_properties_typeProperties_database": {
+			"value": "swiggy_db"
+		},
+		"sqlconnector_properties_typeProperties_userName": {
+			"value": "swiggy_dev_admin"
 		},
 		"containerUri": {
 			"value": ""
