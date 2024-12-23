@@ -5,6 +5,8 @@
 			{
 				"name": "Copy data1",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -120,6 +122,31 @@
 						"type": "DatasetReference"
 					}
 				]
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Copy data1_copy2",
+						"dependencyConditions": [
+							"Skipped",
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "error_message",
+					"value": {
+						"value": "@if(equals(activity('Copy data1').Status, 'Failed'), activity('Copy data1').Error?.message, if(equals(activity('Copy data1_copy2').Status, 'Failed'),activity('Copy data1_copy2').Error?.message, ''))\n",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"variables": {

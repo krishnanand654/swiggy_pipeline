@@ -17,30 +17,6 @@
 					},
 					"waitOnCompletion": true
 				}
-			},
-			{
-				"name": "Set variable1",
-				"type": "SetVariable",
-				"dependsOn": [
-					{
-						"activity": "Execute Pipeline1",
-						"dependencyConditions": [
-							"Failed"
-						]
-					}
-				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "elog",
-					"value": {
-						"value": "@activity('Execute Pipeline1').output.pipelineReturnValue",
-						"type": "Expression"
-					}
-				}
 			}
 		],
 		"variables": {
