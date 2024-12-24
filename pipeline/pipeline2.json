@@ -22,6 +22,9 @@
 		"variables": {
 			"elog": {
 				"type": "String"
+			},
+			"test": {
+				"type": "Array"
 			}
 		},
 		"annotations": []
