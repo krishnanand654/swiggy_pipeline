@@ -265,6 +265,277 @@
 					{
 						"name": "Copy data1_copy2",
 						"type": "Copy",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Failed",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Test1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Set variable2",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "log",
+							"value": {
+								"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Copy data1').ActivityRunId,'\",\"processName\":\"Copy Data\",\"status\":\"',activity('Copy data1').Status,'\",\"errorMessage\":\"',activity('Copy data1').Error?.message,'\"}')\n",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Set variable2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[usp_LogPipelineExecution]",
+							"storedProcedureParameters": {
+								"End_Time": {
+									"value": {
+										"value": "@json(variables('log')).endTime",
+										"type": "Expression"
+									},
+									"type": "Datetime"
+								},
+								"Message": {
+									"value": {
+										"value": "@json(variables('log')).errorMessage",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Process_Id": {
+									"value": {
+										"value": "@json(variables('log')).processId",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Process_Name": {
+									"value": {
+										"value": "@json(variables('log')).processName",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Start_Time": {
+									"value": {
+										"value": "@json(variables('log')).startTime",
+										"type": "Expression"
+									},
+									"type": "Datetime"
+								},
+								"Status": {
+									"value": {
+										"value": "@json(variables('log')).status",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "sqlconnector",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"error_message": {
+						"type": "String"
+					},
+					"status": {
+						"type": "String"
+					},
+					"start_time": {
+						"type": "String"
+					},
+					"end_time": {
+						"type": "String"
+					},
+					"process_id": {
+						"type": "String"
+					},
+					"process_name": {
+						"type": "String"
+					},
+					"log": {
+						"type": "String"
+					},
+					"t-log": {
+						"type": "String"
+					},
+					"test": {
+						"type": "Array"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Test1')]",
+				"[concat(variables('factoryId'), '/datasets/Parquet1')]",
+				"[concat(variables('factoryId'), '/linkedServices/sqlconnector')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline3')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Test1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Copy data2",
+						"type": "Copy",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Copy data1",
@@ -332,10 +603,9 @@
 						"type": "SetVariable",
 						"dependsOn": [
 							{
-								"activity": "Copy data1_copy2",
+								"activity": "Copy data1",
 								"dependencyConditions": [
-									"Skipped",
-									"Failed"
+									"Completed"
 								]
 							}
 						],
@@ -345,9 +615,9 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"variableName": "error_message",
+							"variableName": "log",
 							"value": {
-								"value": "@if(equals(activity('Copy data1').Status, 'Failed'), activity('Copy data1').Error?.message, if(equals(activity('Copy data1_copy2').Status, 'Failed'),activity('Copy data1_copy2').Error?.message, ''))\n",
+								"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Copy data1').ActivityRunId,'\",\"processName\":\"Copy Data\",\"status\":\"',activity('Copy data1').Status,'\",\"errorMessage\":\"',activity('Copy data1').Error?.message,'\"}')\n",
 								"type": "Expression"
 							}
 						}
@@ -355,7 +625,16 @@
 					{
 						"name": "Stored procedure1",
 						"type": "SqlServerStoredProcedure",
-						"dependsOn": [],
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Set variable2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "0.12:00:00",
 							"retry": 0,
@@ -364,28 +643,176 @@
 							"secureInput": false
 						},
 						"userProperties": [],
-						"typeProperties": {}
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[usp_LogPipelineExecution]",
+							"storedProcedureParameters": {
+								"End_Time": {
+									"value": {
+										"value": "@json(variables('log')).endTime",
+										"type": "Expression"
+									},
+									"type": "Datetime"
+								},
+								"Message": {
+									"value": {
+										"value": "@json(variables('log')).errorMessage",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Process_Id": {
+									"value": {
+										"value": "@json(variables('log')).processId",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Process_Name": {
+									"value": {
+										"value": "@json(variables('log')).processName",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Start_Time": {
+									"value": {
+										"value": "@json(variables('log')).startTime",
+										"type": "Expression"
+									},
+									"type": "Datetime"
+								},
+								"Status": {
+									"value": {
+										"value": "@json(variables('log')).status",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "sqlconnector",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Set variable2",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Copy data2",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "log",
+							"value": {
+								"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Copy data2').ActivityRunId,'\",\"processName\":\"Copy Data\",\"status\":\"',activity('Copy data2').Status,'\",\"errorMessage\":\"',activity('Copy data2').Error?.message,'\"}')\n",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Stored procedure1_copy1",
+						"type": "SqlServerStoredProcedure",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Set variable1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[usp_LogPipelineExecution]",
+							"storedProcedureParameters": {
+								"End_Time": {
+									"value": {
+										"value": "@json(variables('log')).endTime",
+										"type": "Expression"
+									},
+									"type": "Datetime"
+								},
+								"Message": {
+									"value": {
+										"value": "@json(variables('log')).errorMessage",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Process_Id": {
+									"value": {
+										"value": "@json(variables('log')).processId",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Process_Name": {
+									"value": {
+										"value": "@json(variables('log')).processName",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Start_Time": {
+									"value": {
+										"value": "@json(variables('log')).startTime",
+										"type": "Expression"
+									},
+									"type": "Datetime"
+								},
+								"Status": {
+									"value": {
+										"value": "@json(variables('log')).status",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "sqlconnector",
+							"type": "LinkedServiceReference"
+						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
 				"variables": {
-					"error_message": {
+					"activityNames": {
+						"type": "Array"
+					},
+					"log": {
 						"type": "String"
 					},
-					"status": {
-						"type": "String"
-					},
-					"elog": {
-						"type": "String"
+					"test": {
+						"type": "Array"
 					}
 				},
 				"annotations": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Test1')]",
-				"[concat(variables('factoryId'), '/datasets/Parquet1')]"
+				"[concat(variables('factoryId'), '/datasets/Parquet1')]",
+				"[concat(variables('factoryId'), '/linkedServices/sqlconnector')]"
 			]
 		},
 		{
@@ -531,6 +958,9 @@
 				"variables": {
 					"elog": {
 						"type": "String"
+					},
+					"test": {
+						"type": "Array"
 					}
 				},
 				"annotations": []
