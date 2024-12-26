@@ -1,0 +1,22 @@
+{
+	"name": "test",
+	"properties": {
+		"variables": {
+			"Activities": {
+				"type": "Array",
+				"defaultValue": [
+					"one",
+					"two",
+					"three"
+				]
+			},
+			"out": {
+				"type": "String"
+			},
+			"xlog": {
+				"type": "Array"
+			}
+		},
+		"annotations": []
+	}
+}
