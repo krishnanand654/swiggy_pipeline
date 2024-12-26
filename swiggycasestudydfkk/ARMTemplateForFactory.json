@@ -1070,7 +1070,7 @@
 							{
 								"activity": "Copy data1",
 								"dependencyConditions": [
-									"Completed"
+									"Succeeded"
 								]
 							}
 						],
@@ -1194,7 +1194,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"notebookPath": "/Users/kk_insights@outlook.com/Case study/error_simulation"
+							"notebookPath": "/Users/kk_insights@outlook.com/success_simulation"
 						},
 						"linkedServiceName": {
 							"referenceName": "AzureDatabricks1",
@@ -1268,31 +1268,36 @@
 							{
 								"activity": "Append variable1",
 								"dependencyConditions": [
-									"Completed"
+									"Completed",
+									"Skipped"
 								]
 							},
 							{
 								"activity": "Append variable2",
 								"dependencyConditions": [
-									"Completed"
+									"Completed",
+									"Skipped"
 								]
 							},
 							{
 								"activity": "Append variable3",
 								"dependencyConditions": [
-									"Completed"
+									"Completed",
+									"Skipped"
 								]
 							},
 							{
 								"activity": "Append variable4",
 								"dependencyConditions": [
-									"Completed"
+									"Completed",
+									"Skipped"
 								]
 							},
 							{
 								"activity": "Append variable5",
 								"dependencyConditions": [
-									"Completed"
+									"Completed",
+									"Skipped"
 								]
 							}
 						],
