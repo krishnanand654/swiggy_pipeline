@@ -1,0 +1,492 @@
+{
+	"name": "pipeline3_copy1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Test1",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Parquet1",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Notebook1",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/kk_insights@outlook.com/Case study/error_simulation"
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureDatabricks1",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Archive",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "archieve_source",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "archive_sink",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Delete1",
+				"type": "Delete",
+				"dependsOn": [
+					{
+						"activity": "Archive",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Notebook2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "archieve_source",
+						"type": "DatasetReference"
+					},
+					"logStorageSettings": {
+						"linkedServiceName": {
+							"referenceName": "AzureDataLakeStorage1",
+							"type": "LinkedServiceReference"
+						},
+						"path": "swiggydataset/Delete_Log"
+					},
+					"enableLogging": true,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "Notebook2",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Notebook1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/kk_insights@outlook.com/Case study/error_simulation"
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureDatabricks1",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Append variable1",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "Notebook2",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "append_var",
+					"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"',activity('Notebook2').ActivityRunId,'\",\"processName\":\"Notebook2\",\"status\":\"',activity('Notebook2').Status,'\",\"errorMessage\":\"', activity('Notebook2').output?.runError,'\"}')\n"
+				}
+			},
+			{
+				"name": "Append variable2",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "Notebook1",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "append_var",
+					"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"',activity('Notebook1').ActivityRunId,'\",\"processName\":\"Notebook1\",\"status\":\"',activity('Notebook1').Status,'\",\"errorMessage\":\"', activity('Notebook1').output?.runError,'\"}')\n"
+				}
+			},
+			{
+				"name": "Append variable3",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "Archive",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "append_var",
+					"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Archive').ActivityRunId,'\",\"processName\":\"Archive\",\"status\":\"',activity('Archive').Status,'\",\"errorMessage\":\"',activity('Archive').Error?.message,'\"}')\n"
+				}
+			},
+			{
+				"name": "Set variable2",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Append variable1",
+						"dependencyConditions": [
+							"Completed"
+						]
+					},
+					{
+						"activity": "Append variable2",
+						"dependencyConditions": [
+							"Completed"
+						]
+					},
+					{
+						"activity": "Append variable3",
+						"dependencyConditions": [
+							"Completed"
+						]
+					},
+					{
+						"activity": "Append variable4",
+						"dependencyConditions": [
+							"Completed"
+						]
+					},
+					{
+						"activity": "Append variable5",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "final_var",
+					"value": {
+						"value": "@variables('append_var')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Set variable2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@variables('final_var')",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Set variable3",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "log",
+								"value": {
+									"value": "@item()",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Stored procedure_copy1",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "Set variable3",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[usp_LogPipelineExecution]",
+								"storedProcedureParameters": {
+									"End_Time": {
+										"value": {
+											"value": "@json(variables('log')).endTime",
+											"type": "Expression"
+										},
+										"type": "Datetime"
+									},
+									"Message": {
+										"value": {
+											"value": "@json(variables('log')).errorMessage",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Process_Id": {
+										"value": {
+											"value": "@json(variables('log')).processId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Process_Name": {
+										"value": {
+											"value": "@json(variables('log')).processName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Start_Time": {
+										"value": {
+											"value": "@json(variables('log')).startTime",
+											"type": "Expression"
+										},
+										"type": "Datetime"
+									},
+									"Status": {
+										"value": {
+											"value": "@json(variables('log')).status",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "sqlconnector",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Append variable4",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "append_var",
+					"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Copy data1').ActivityRunId,'\",\"processName\":\"Copy Data\",\"status\":\"',activity('Copy data1').Status,'\",\"errorMessage\":\"',activity('Copy data1').Error?.message,'\"}')\n"
+				}
+			},
+			{
+				"name": "Append variable5",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "Delete1",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "append_var",
+					"value": {
+						"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Delete1').ActivityRunId,'\",\"processName\":\"Delete1\",\"status\":\"',activity('Delete1').Status,'\",\"errorMessage\":\"',activity('Delete1').Error?.message,'\"}')\n",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"activityNames": {
+				"type": "Array"
+			},
+			"log": {
+				"type": "String"
+			},
+			"test": {
+				"type": "String"
+			},
+			"out": {
+				"type": "String"
+			},
+			"append_var": {
+				"type": "Array"
+			},
+			"final_var": {
+				"type": "Array"
+			}
+		},
+		"annotations": []
+	}
+}
