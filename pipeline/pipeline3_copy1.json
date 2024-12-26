@@ -92,7 +92,7 @@
 					{
 						"activity": "Copy data1",
 						"dependencyConditions": [
-							"Completed"
+							"Succeeded"
 						]
 					}
 				],
@@ -213,7 +213,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Users/kk_insights@outlook.com/Case study/error_simulation"
+					"notebookPath": "/Users/kk_insights@outlook.com/success_simulation"
 				},
 				"linkedServiceName": {
 					"referenceName": "AzureDatabricks1",
@@ -234,7 +234,10 @@
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "append_var",
-					"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"',activity('Notebook2').ActivityRunId,'\",\"processName\":\"Notebook2\",\"status\":\"',activity('Notebook2').Status,'\",\"errorMessage\":\"', activity('Notebook2').output?.runError,'\"}')\n"
+					"value": {
+						"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"',activity('Notebook2').ActivityRunId,'\",\"processName\":\"Notebook2\",\"status\":\"',activity('Notebook2').Status,'\",\"errorMessage\":\"', activity('Notebook2').output?.runError,'\"}')\n",
+						"type": "Expression"
+					}
 				}
 			},
 			{
@@ -251,7 +254,10 @@
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "append_var",
-					"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"',activity('Notebook1').ActivityRunId,'\",\"processName\":\"Notebook1\",\"status\":\"',activity('Notebook1').Status,'\",\"errorMessage\":\"', activity('Notebook1').output?.runError,'\"}')\n"
+					"value": {
+						"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"',activity('Notebook1').ActivityRunId,'\",\"processName\":\"Notebook1\",\"status\":\"',activity('Notebook1').Status,'\",\"errorMessage\":\"', activity('Notebook1').output?.runError,'\"}')\n",
+						"type": "Expression"
+					}
 				}
 			},
 			{
@@ -268,7 +274,10 @@
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "append_var",
-					"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Archive').ActivityRunId,'\",\"processName\":\"Archive\",\"status\":\"',activity('Archive').Status,'\",\"errorMessage\":\"',activity('Archive').Error?.message,'\"}')\n"
+					"value": {
+						"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Archive').ActivityRunId,'\",\"processName\":\"Archive\",\"status\":\"',activity('Archive').Status,'\",\"errorMessage\":\"',activity('Archive').Error?.message,'\"}')\n",
+						"type": "Expression"
+					}
 				}
 			},
 			{
@@ -278,31 +287,36 @@
 					{
 						"activity": "Append variable1",
 						"dependencyConditions": [
-							"Completed"
+							"Completed",
+							"Skipped"
 						]
 					},
 					{
 						"activity": "Append variable2",
 						"dependencyConditions": [
-							"Completed"
+							"Completed",
+							"Skipped"
 						]
 					},
 					{
 						"activity": "Append variable3",
 						"dependencyConditions": [
-							"Completed"
+							"Completed",
+							"Skipped"
 						]
 					},
 					{
 						"activity": "Append variable4",
 						"dependencyConditions": [
-							"Completed"
+							"Completed",
+							"Skipped"
 						]
 					},
 					{
 						"activity": "Append variable5",
 						"dependencyConditions": [
-							"Completed"
+							"Completed",
+							"Skipped"
 						]
 					}
 				],
@@ -443,7 +457,10 @@
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "append_var",
-					"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Copy data1').ActivityRunId,'\",\"processName\":\"Copy Data\",\"status\":\"',activity('Copy data1').Status,'\",\"errorMessage\":\"',activity('Copy data1').Error?.message,'\"}')\n"
+					"value": {
+						"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Copy data1').ActivityRunId,'\",\"processName\":\"Copy Data\",\"status\":\"',activity('Copy data1').Status,'\",\"errorMessage\":\"',activity('Copy data1').Error?.message,'\"}')\n",
+						"type": "Expression"
+					}
 				}
 			},
 			{
