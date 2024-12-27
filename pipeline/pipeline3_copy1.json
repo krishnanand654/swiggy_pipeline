@@ -5,6 +5,8 @@
 			{
 				"name": "Copy data1",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -61,6 +63,8 @@
 			{
 				"name": "Notebook1",
 				"type": "DatabricksNotebook",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Copy data1",
@@ -86,116 +90,10 @@
 				}
 			},
 			{
-				"name": "Archive",
-				"type": "Copy",
-				"dependsOn": [
-					{
-						"activity": "Copy data1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"source": {
-						"type": "DelimitedTextSource",
-						"storeSettings": {
-							"type": "AzureBlobFSReadSettings",
-							"recursive": true,
-							"enablePartitionDiscovery": false
-						},
-						"formatSettings": {
-							"type": "DelimitedTextReadSettings"
-						}
-					},
-					"sink": {
-						"type": "ParquetSink",
-						"storeSettings": {
-							"type": "AzureBlobFSWriteSettings"
-						},
-						"formatSettings": {
-							"type": "ParquetWriteSettings"
-						}
-					},
-					"enableStaging": false,
-					"translator": {
-						"type": "TabularTranslator",
-						"typeConversion": true,
-						"typeConversionSettings": {
-							"allowDataTruncation": true,
-							"treatBooleanAsNumber": false
-						}
-					}
-				},
-				"inputs": [
-					{
-						"referenceName": "archieve_source",
-						"type": "DatasetReference"
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "archive_sink",
-						"type": "DatasetReference"
-					}
-				]
-			},
-			{
-				"name": "Delete1",
-				"type": "Delete",
-				"dependsOn": [
-					{
-						"activity": "Archive",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "Notebook2",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"dataset": {
-						"referenceName": "archieve_source",
-						"type": "DatasetReference"
-					},
-					"logStorageSettings": {
-						"linkedServiceName": {
-							"referenceName": "AzureDataLakeStorage1",
-							"type": "LinkedServiceReference"
-						},
-						"path": "swiggydataset/Delete_Log"
-					},
-					"enableLogging": true,
-					"storeSettings": {
-						"type": "AzureBlobFSReadSettings",
-						"recursive": true,
-						"enablePartitionDiscovery": false
-					}
-				}
-			},
-			{
 				"name": "Notebook2",
 				"type": "DatabricksNotebook",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Notebook1",
@@ -223,6 +121,8 @@
 			{
 				"name": "Append variable1",
 				"type": "AppendVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Notebook2",
@@ -243,6 +143,8 @@
 			{
 				"name": "Append variable2",
 				"type": "AppendVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Notebook1",
@@ -261,28 +163,8 @@
 				}
 			},
 			{
-				"name": "Append variable3",
-				"type": "AppendVariable",
-				"dependsOn": [
-					{
-						"activity": "Archive",
-						"dependencyConditions": [
-							"Completed"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "append_var",
-					"value": {
-						"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Archive').ActivityRunId,'\",\"processName\":\"Archive\",\"status\":\"',activity('Archive').Status,'\",\"errorMessage\":\"',activity('Archive').Error?.message,'\"}')\n",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "Set variable2",
-				"type": "SetVariable",
+				"name": "ForEach1",
+				"type": "ForEach",
 				"dependsOn": [
 					{
 						"activity": "Append variable1",
@@ -299,13 +181,6 @@
 						]
 					},
 					{
-						"activity": "Append variable3",
-						"dependencyConditions": [
-							"Completed",
-							"Skipped"
-						]
-					},
-					{
 						"activity": "Append variable4",
 						"dependencyConditions": [
 							"Completed",
@@ -313,41 +188,17 @@
 						]
 					},
 					{
-						"activity": "Append variable5",
+						"activity": "Append variable6",
 						"dependencyConditions": [
 							"Completed",
 							"Skipped"
 						]
 					}
 				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "final_var",
-					"value": {
-						"value": "@variables('append_var')",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "ForEach1",
-				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "Set variable2",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@variables('final_var')",
+						"value": "@variables('append_var')",
 						"type": "Expression"
 					},
 					"isSequential": true,
@@ -446,6 +297,8 @@
 			{
 				"name": "Append variable4",
 				"type": "AppendVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Copy data1",
@@ -464,11 +317,11 @@
 				}
 			},
 			{
-				"name": "Append variable5",
+				"name": "Append variable6",
 				"type": "AppendVariable",
 				"dependsOn": [
 					{
-						"activity": "Delete1",
+						"activity": "Archive",
 						"dependencyConditions": [
 							"Completed"
 						]
@@ -478,9 +331,42 @@
 				"typeProperties": {
 					"variableName": "append_var",
 					"value": {
-						"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Delete1').ActivityRunId,'\",\"processName\":\"Delete1\",\"status\":\"',activity('Delete1').Status,'\",\"errorMessage\":\"',activity('Delete1').Error?.message,'\"}')\n",
+						"value": "@concat(\n  '{\"startTime\":\"', utcNow(), '\",',\n  '\"endTime\":\"', utcNow(), '\",',\n  '\"processId\":\"', activity('Archive').ActivityRunId, '\",',\n  '\"processName\":\"Archive\",',\n  '\"status\":\"', activity('Archive').Status, '\",',\n  '\"errorMessage\":\"', \n  if(\n    not(empty(activity('Archive').Error?.message)),\n    json(activity('Archive').Error?.message).Message,\n    ''\n  ),\n  '\"}'\n)\n",
 						"type": "Expression"
 					}
+				}
+			},
+			{
+				"name": "Archive",
+				"type": "ExecuteDataFlow",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "Notebook2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Archive",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
 				}
 			}
 		],

@@ -1,5 +1,5 @@
 {
-	"name": "swiggy",
+	"name": "swiggy_large",
 	"properties": {
 		"activities": [
 			{
@@ -73,12 +73,69 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Users/kk_insights@outlook.com/swiggy_pipeline/Swiggy_ETL/bronze_to_silver"
+					"notebookPath": "/Users/kk_insights@outlook.com/Case study/error_simulation"
 				},
 				"linkedServiceName": {
 					"referenceName": "AzureDatabricks1",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "Archive",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "Notebook3",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "main_archive_source",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "archive_sink",
+						"type": "DatasetReference"
+					}
+				]
 			},
 			{
 				"name": "Notebook2",
@@ -102,7 +159,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Users/kk_insights@outlook.com/swiggy_pipeline/Swiggy_ETL/silver_to_gold"
+					"notebookPath": "/Users/kk_insights@outlook.com/success_simulation"
 				},
 				"linkedServiceName": {
 					"referenceName": "AzureDatabricks1",
@@ -164,7 +221,7 @@
 				"typeProperties": {
 					"variableName": "append_var",
 					"value": {
-						"value": "@concat(\n  '{\"startTime\":\"', utcNow(), '\",',\n  '\"endTime\":\"', utcNow(), '\",',\n  '\"processId\":\"', activity('Archive').ActivityRunId, '\",',\n  '\"processName\":\"Archive\",',\n  '\"status\":\"', activity('Archive').Status, '\",',\n  '\"errorMessage\":\"', \n  if(\n    not(empty(activity('Archive').Error?.message)),\n    json(activity('Archive').Error?.message).Message,\n    ''\n  ),\n  '\"}'\n)\n",
+						"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Archive').ActivityRunId,'\",\"processName\":\"Archive\",\"status\":\"',activity('Archive').Status,'\",\"errorMessage\":\"',activity('Archive').Error?.message,'\"}')\n",
 						"type": "Expression"
 					}
 				}
@@ -196,6 +253,13 @@
 					},
 					{
 						"activity": "Append Copy Data Log",
+						"dependencyConditions": [
+							"Completed",
+							"Skipped"
+						]
+					},
+					{
+						"activity": "Append Delete Log",
 						"dependencyConditions": [
 							"Completed",
 							"Skipped"
@@ -329,10 +393,137 @@
 				}
 			},
 			{
+				"name": "Get Metadata1",
+				"type": "GetMetadata",
+				"dependsOn": [
+					{
+						"activity": "Archive",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "main_archive_source",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"exists"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "JsonReadSettings"
+					}
+				}
+			},
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Archive",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@activity('Get Metadata1').output.exists",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Fail1",
+							"type": "Fail",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"message": "FileNotFound",
+								"errorCode": "2200"
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Delete1",
+							"type": "Delete",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "archieve_source",
+									"type": "DatasetReference"
+								},
+								"logStorageSettings": {
+									"linkedServiceName": {
+										"referenceName": "AzureDataLakeStorage1",
+										"type": "LinkedServiceReference"
+									},
+									"path": "swiggydataset/Delete_Log"
+								},
+								"enableLogging": true,
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Append Delete Log",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "If Condition1",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "append_var",
+					"value": {
+						"value": "@concat(\n    '{\"startTime\":\"', utcNow(), '\",',\n    '\"endTime\":\"', utcNow(), '\",',\n    '\"processId\":\"', \n        if(\n            activity('Get Metadata1').output.exists,\n            activity('Delete1').ActivityRunId, \n            activity('Fail1').ActivityRunId\n        ),\n    '\",\"processName\":\"Delete1\",',\n    '\"status\":\"', \n        if(\n            activity('Get Metadata1').output.exists,\n            activity('Delete1').Status, \n            'Failed'\n        ),\n    '\",',\n    '\"errorMessage\":\"',\n        if(\n            activity('Get Metadata1').output.exists,\n            activity('Delete1').Error?.message, \n            activity('Fail1').output.message\n        ),\n    '\"}'\n)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
 				"name": "Notebook3",
 				"type": "DatabricksNotebook",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Notebook2",
@@ -350,7 +541,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Users/kk_insights@outlook.com/swiggy_pipeline/Swiggy_ETL/Query"
+					"notebookPath": "/Users/kk_insights@outlook.com/success_simulation"
 				},
 				"linkedServiceName": {
 					"referenceName": "AzureDatabricks1",
@@ -375,39 +566,6 @@
 						"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"',activity('Notebook3').ActivityRunId,'\",\"processName\":\"Notebook3\",\"status\":\"',activity('Notebook3').Status,'\",\"errorMessage\":\"', activity('Notebook3').output?.runError,'\"}')\n",
 						"type": "Expression"
 					}
-				}
-			},
-			{
-				"name": "Archive",
-				"type": "ExecuteDataFlow",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [
-					{
-						"activity": "Notebook3",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"dataflow": {
-						"referenceName": "Archive",
-						"type": "DataFlowReference"
-					},
-					"compute": {
-						"coreCount": 8,
-						"computeType": "General"
-					},
-					"traceLevel": "Fine"
 				}
 			}
 		],

@@ -1,23 +1,23 @@
 {
-	"name": "archive_sink",
+	"name": "DelimitedText1",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureDataLakeStorage1",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
-		"type": "Parquet",
+		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "*.parquet",
-				"folderPath": {
-					"value": "@concat('Archive/swiggy_', formatDateTime(utcNow(), 'yyyyMMddHHmmss'))",
-					"type": "Expression"
-				},
+				"fileName": "export.csv",
+				"folderPath": "testdataset",
 				"fileSystem": "swiggydataset"
 			},
-			"compressionCodec": "snappy"
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": false,
+			"quoteChar": "\""
 		},
 		"schema": []
 	}
