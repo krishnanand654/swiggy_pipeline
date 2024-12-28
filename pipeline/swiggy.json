@@ -54,8 +54,6 @@
 			{
 				"name": "Notebook1",
 				"type": "DatabricksNotebook",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Git_to_DataLake",
@@ -83,8 +81,6 @@
 			{
 				"name": "Notebook2",
 				"type": "DatabricksNotebook",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Notebook1",
@@ -331,8 +327,6 @@
 			{
 				"name": "Notebook3",
 				"type": "DatabricksNotebook",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Notebook2",
