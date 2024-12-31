@@ -1447,8 +1447,6 @@
 					{
 						"name": "Notebook1",
 						"type": "DatabricksNotebook",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Git_to_DataLake",
@@ -1476,8 +1474,6 @@
 					{
 						"name": "Notebook2",
 						"type": "DatabricksNotebook",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Notebook1",
@@ -1505,8 +1501,6 @@
 					{
 						"name": "Append Notebook2 Log",
 						"type": "AppendVariable",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Notebook2",
@@ -1519,7 +1513,7 @@
 						"typeProperties": {
 							"variableName": "append_var",
 							"value": {
-								"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"',activity('Notebook2').ActivityRunId,'\",\"processName\":\"Notebook2\",\"status\":\"',activity('Notebook2').Status,'\",\"errorMessage\":\"', activity('Notebook2').output?.runError,'\"}')\n",
+								"value": "@concat('{\"startTime\":\"',activity('Notebook2').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook2').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook2').ActivityRunId,'\",\"processName\":\"Notebook2\",\"status\":\"',activity('Notebook2').Status,'\",\"errorMessage\":\"', activity('Notebook2').output?.runError,'\"}')\n",
 								"type": "Expression"
 							}
 						}
@@ -1527,8 +1521,6 @@
 					{
 						"name": "Append Notebook1 Log",
 						"type": "AppendVariable",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Notebook1",
@@ -1541,7 +1533,7 @@
 						"typeProperties": {
 							"variableName": "append_var",
 							"value": {
-								"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"',activity('Notebook1').ActivityRunId,'\",\"processName\":\"Notebook1\",\"status\":\"',activity('Notebook1').Status,'\",\"errorMessage\":\"', activity('Notebook1').output?.runError,'\"}')\n",
+								"value": "@concat('{\"startTime\":\"',activity('Notebook1').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook1').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook1').ActivityRunId,'\",\"processName\":\"Notebook1\",\"status\":\"',activity('Notebook1').Status,'\",\"errorMessage\":\"', activity('Notebook1').output?.runError,'\"}')\n",
 								"type": "Expression"
 							}
 						}
@@ -1549,8 +1541,6 @@
 					{
 						"name": "Append Archive Log",
 						"type": "AppendVariable",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Archive",
@@ -1563,7 +1553,7 @@
 						"typeProperties": {
 							"variableName": "append_var",
 							"value": {
-								"value": "@concat(\n  '{\"startTime\":\"', utcNow(), '\",',\n  '\"endTime\":\"', utcNow(), '\",',\n  '\"processId\":\"', activity('Archive').ActivityRunId, '\",',\n  '\"processName\":\"Archive\",',\n  '\"status\":\"', activity('Archive').Status, '\",',\n  '\"errorMessage\":\"', \n  if(\n    not(empty(activity('Archive').Error?.message)),\n    json(activity('Archive').Error?.message).Message,\n    ''\n  ),\n  '\"}'\n)\n",
+								"value": "@concat(\n  '{\"startTime\":\"', activity('Archive').ExecutionStartTime, '\",',\n  '\"endTime\":\"', activity('Archive').ExecutionEndTime, '\",',\n  '\"processId\":\"', activity('Archive').ActivityRunId, '\",',\n  '\"processName\":\"Archive\",',\n  '\"status\":\"', activity('Archive').Status, '\",',\n  '\"errorMessage\":\"', \n  if(\n    not(empty(activity('Archive').Error?.message)),\n    json(activity('Archive').Error?.message).Message,\n    ''\n  ),\n  '\"}'\n)\n",
 								"type": "Expression"
 							}
 						}
@@ -1571,8 +1561,6 @@
 					{
 						"name": "ForEach1",
 						"type": "ForEach",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Append Notebook2 Log",
@@ -1712,8 +1700,6 @@
 					{
 						"name": "Append Copy Data Log",
 						"type": "AppendVariable",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Git_to_DataLake",
@@ -1726,7 +1712,7 @@
 						"typeProperties": {
 							"variableName": "append_var",
 							"value": {
-								"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Git_to_DataLake').ActivityRunId,'\",\"processName\":\"Copy Data\",\"status\":\"',activity('Git_to_DataLake').Status,'\",\"errorMessage\":\"',activity('Git_to_DataLake').Error?.message,'\"}')\n",
+								"value": "@concat('{\"startTime\":\"',activity('Git_to_DataLake').ExecutionStartTime,'\",\"endTime\":\"',activity('Git_to_DataLake').ExecutionEndTime,'\",\"processId\":\"', activity('Git_to_DataLake').ActivityRunId,'\",\"processName\":\"Copy Data\",\"status\":\"',activity('Git_to_DataLake').Status,'\",\"errorMessage\":\"',activity('Git_to_DataLake').Error?.message,'\"}')\n",
 								"type": "Expression"
 							}
 						}
@@ -1734,8 +1720,6 @@
 					{
 						"name": "Notebook3",
 						"type": "DatabricksNotebook",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Notebook2",
@@ -1763,8 +1747,6 @@
 					{
 						"name": "Append Notebook3 Log",
 						"type": "AppendVariable",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Notebook3",
@@ -1777,7 +1759,7 @@
 						"typeProperties": {
 							"variableName": "append_var",
 							"value": {
-								"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"',activity('Notebook3').ActivityRunId,'\",\"processName\":\"Notebook3\",\"status\":\"',activity('Notebook3').Status,'\",\"errorMessage\":\"', activity('Notebook3').output?.runError,'\"}')\n",
+								"value": "@concat('{\"startTime\":\"',activity('Notebook3').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook3').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook3').ActivityRunId,'\",\"processName\":\"Notebook3\",\"status\":\"',activity('Notebook3').Status,'\",\"errorMessage\":\"', activity('Notebook3').output?.runError,'\"}')\n",
 								"type": "Expression"
 							}
 						}
