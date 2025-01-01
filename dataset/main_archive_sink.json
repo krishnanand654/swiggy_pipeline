@@ -1,24 +1,20 @@
 {
-	"name": "archive_sink",
+	"name": "main_archive_sink",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureDataLakeStorage1",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
-		"type": "Parquet",
+		"type": "Json",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "*.json",
-				"folderPath": {
-					"value": "@concat('Archive/swiggy_', formatDateTime(utcNow(), 'yyyyMMddHHmmss'))",
-					"type": "Expression"
-				},
+				"folderPath": "@concat('Archive/swiggy_', formatDateTime(utcNow(), 'yyyyMMddHHmmss'))",
 				"fileSystem": "swiggydataset"
-			},
-			"compressionCodec": "snappy"
+			}
 		},
-		"schema": []
+		"schema": {}
 	}
 }

@@ -110,12 +110,12 @@
 						}
 					},
 					"sink": {
-						"type": "ParquetSink",
+						"type": "JsonSink",
 						"storeSettings": {
 							"type": "AzureBlobFSWriteSettings"
 						},
 						"formatSettings": {
-							"type": "ParquetWriteSettings"
+							"type": "JsonWriteSettings"
 						}
 					},
 					"enableStaging": false
@@ -128,7 +128,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "archive_sink",
+						"referenceName": "main_archive_sink",
 						"type": "DatasetReference"
 					}
 				]
