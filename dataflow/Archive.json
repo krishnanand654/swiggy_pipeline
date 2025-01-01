@@ -42,8 +42,7 @@
 				"     skipDuplicateMapOutputs: true,",
 				"     outputAssertFailedRows: true,",
 				"     assertFailure_fileSystem: 'swiggydataset',",
-				"     assertFailure_folderPath: 'Error_Log',",
-				"     partitionBy('roundRobin', 5)) ~> ToArchiveFolder"
+				"     assertFailure_folderPath: 'Error_Log') ~> ToArchiveFolder"
 			]
 		}
 	}
