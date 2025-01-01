@@ -10,8 +10,11 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "*.json",
-				"folderPath": "@concat('Archive/swiggy_', formatDateTime(utcNow(), 'yyyyMMddHHmmss'))",
+				"fileName": "swiggy.json",
+				"folderPath": {
+					"value": "@concat('Archive/swiggyx_', formatDateTime(utcNow(), 'yyyyMMddHHmmss'))",
+					"type": "Expression"
+				},
 				"fileSystem": "swiggydataset"
 			}
 		},
