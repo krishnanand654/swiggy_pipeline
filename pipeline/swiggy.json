@@ -54,6 +54,8 @@
 			{
 				"name": "Notebook1",
 				"type": "DatabricksNotebook",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Git_to_DataLake",
@@ -81,6 +83,8 @@
 			{
 				"name": "Notebook2",
 				"type": "DatabricksNotebook",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Notebook1",
@@ -108,6 +112,8 @@
 			{
 				"name": "Append Notebook2 Log",
 				"type": "AppendVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Notebook2",
@@ -128,6 +134,8 @@
 			{
 				"name": "Append Notebook1 Log",
 				"type": "AppendVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Notebook1",
@@ -307,6 +315,8 @@
 			{
 				"name": "Append Copy Data Log",
 				"type": "AppendVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Git_to_DataLake",
@@ -327,6 +337,8 @@
 			{
 				"name": "Notebook3",
 				"type": "DatabricksNotebook",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Notebook2",
@@ -354,6 +366,8 @@
 			{
 				"name": "Append Notebook3 Log",
 				"type": "AppendVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Notebook3",
