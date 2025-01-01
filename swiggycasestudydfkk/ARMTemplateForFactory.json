@@ -184,6 +184,8 @@
 					{
 						"name": "Set variable2",
 						"type": "SetVariable",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Copy data1",
@@ -208,6 +210,8 @@
 					{
 						"name": "Stored procedure1",
 						"type": "SqlServerStoredProcedure",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Set variable2",
@@ -275,6 +279,63 @@
 							"referenceName": "sqlconnector",
 							"type": "LinkedServiceReference"
 						}
+					},
+					{
+						"name": "Copy data2",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "archieve_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "main_archive_sink",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
 					}
 				],
 				"policy": {
@@ -314,7 +375,9 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Test1')]",
 				"[concat(variables('factoryId'), '/datasets/Parquet1')]",
-				"[concat(variables('factoryId'), '/linkedServices/sqlconnector')]"
+				"[concat(variables('factoryId'), '/linkedServices/sqlconnector')]",
+				"[concat(variables('factoryId'), '/datasets/archieve_source')]",
+				"[concat(variables('factoryId'), '/datasets/main_archive_sink')]"
 			]
 		},
 		{
@@ -1847,8 +1910,6 @@
 					{
 						"name": "Git_to_DataLake",
 						"type": "Copy",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -2591,9 +2652,9 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "*.json",
+						"fileName": "swiggy.json",
 						"folderPath": {
-							"value": "@concat('Archive/swiggy_', formatDateTime(utcNow(), 'yyyyMMddHHmmss'))",
+							"value": "@concat('Archive/swiggyx_', formatDateTime(utcNow(), 'yyyyMMddHHmmss'))",
 							"type": "Expression"
 						},
 						"fileSystem": "swiggydataset"
