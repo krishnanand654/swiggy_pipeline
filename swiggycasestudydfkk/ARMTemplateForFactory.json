@@ -1513,7 +1513,7 @@
 						"typeProperties": {
 							"variableName": "append_var",
 							"value": {
-								"value": "@concat('{\"startTime\":\"',activity('Notebook2').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook2').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook2').ActivityRunId,'\",\"processName\":\"Notebook2\",\"status\":\"',activity('Notebook2').Status,'\",\"errorMessage\":\"', activity('Notebook2').output?.runError,'\"}')\n",
+								"value": "@concat('{\"startTime\":\"',activity('Notebook2').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook2').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook2').ActivityRunId,'\",\"processName\":\"Notebook2\",\"status\":\"',activity('Notebook2').Status,'\",\"errorMessage\":\"', if(equals(activity('Notebook2').output?.runError, null), activity('Notebook2').Error?.Message, activity('Notebook2').output?.runError),'\"}')\n",
 								"type": "Expression"
 							}
 						}
@@ -1533,7 +1533,7 @@
 						"typeProperties": {
 							"variableName": "append_var",
 							"value": {
-								"value": "@concat('{\"startTime\":\"',activity('Notebook1').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook1').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook1').ActivityRunId,'\",\"processName\":\"Notebook1\",\"status\":\"',activity('Notebook1').Status,'\",\"errorMessage\":\"', activity('Notebook1').output?.runError,'\"}')\n",
+								"value": "@concat('{\"startTime\":\"',activity('Notebook1').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook1').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook1').ActivityRunId,'\",\"processName\":\"Notebook1\",\"status\":\"',activity('Notebook1').Status,'\",\"errorMessage\":\"', if(equals(activity('Notebook1').output?.runError, null), activity('Notebook1').Error?.Message, activity('Notebook1').output?.runError), '\"}')\n",
 								"type": "Expression"
 							}
 						}
@@ -1759,7 +1759,7 @@
 						"typeProperties": {
 							"variableName": "append_var",
 							"value": {
-								"value": "@concat('{\"startTime\":\"',activity('Notebook3').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook3').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook3').ActivityRunId,'\",\"processName\":\"Notebook3\",\"status\":\"',activity('Notebook3').Status,'\",\"errorMessage\":\"', activity('Notebook3').output?.runError,'\"}')\n",
+								"value": "@concat('{\"startTime\":\"',activity('Notebook3').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook3').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook3').ActivityRunId,'\",\"processName\":\"Notebook3\",\"status\":\"',activity('Notebook3').Status,'\",\"errorMessage\":\"', if(equals(activity('Notebook3').output?.runError, null), activity('Notebook3').Error?.Message, activity('Notebook3').output?.runError),'\"}')\n",
 								"type": "Expression"
 							}
 						}
