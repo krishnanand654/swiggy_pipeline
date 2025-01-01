@@ -1447,6 +1447,8 @@
 					{
 						"name": "Notebook1",
 						"type": "DatabricksNotebook",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Git_to_DataLake",
@@ -1474,6 +1476,8 @@
 					{
 						"name": "Notebook2",
 						"type": "DatabricksNotebook",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Notebook1",
@@ -1501,6 +1505,8 @@
 					{
 						"name": "Append Notebook2 Log",
 						"type": "AppendVariable",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Notebook2",
@@ -1521,6 +1527,8 @@
 					{
 						"name": "Append Notebook1 Log",
 						"type": "AppendVariable",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Notebook1",
@@ -1700,6 +1708,8 @@
 					{
 						"name": "Append Copy Data Log",
 						"type": "AppendVariable",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Git_to_DataLake",
@@ -1720,6 +1730,8 @@
 					{
 						"name": "Notebook3",
 						"type": "DatabricksNotebook",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Notebook2",
@@ -1747,6 +1759,8 @@
 					{
 						"name": "Append Notebook3 Log",
 						"type": "AppendVariable",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Notebook3",
@@ -2737,7 +2751,11 @@
 								"referenceName": "archive_sink",
 								"type": "DatasetReference"
 							},
-							"name": "ToArchiveFolder"
+							"name": "ToArchiveFolder",
+							"rejectedDataLinkedService": {
+								"referenceName": "AzureDataLakeStorage1",
+								"type": "LinkedServiceReference"
+							}
 						}
 					],
 					"transformations": [],
@@ -2755,13 +2773,17 @@
 						"     postCommands: [],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('roundRobin', 2)) ~> ToArchiveFolder"
+						"     outputAssertFailedRows: true,",
+						"     assertFailure_fileSystem: 'swiggydataset',",
+						"     assertFailure_folderPath: 'Error_Log',",
+						"     partitionBy('roundRobin', 5)) ~> ToArchiveFolder"
 					]
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/main_archive_source')]",
-				"[concat(variables('factoryId'), '/datasets/archive_sink')]"
+				"[concat(variables('factoryId'), '/datasets/archive_sink')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
 			]
 		}
 	]
