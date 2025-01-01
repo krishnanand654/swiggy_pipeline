@@ -2707,8 +2707,6 @@
 					{
 						"name": "Archive",
 						"type": "ExecuteDataFlow",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Notebook3",
