@@ -25,7 +25,7 @@
 		},
 		"AzureDatabricks1_properties_typeProperties_existingClusterId": {
 			"type": "string",
-			"defaultValue": "1226-061353-oyn5avv9"
+			"defaultValue": "0101-123724-ug9v9wak"
 		},
 		"fromgithub_properties_typeProperties_url": {
 			"type": "string",
