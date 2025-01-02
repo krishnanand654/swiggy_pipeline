@@ -478,7 +478,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"dataset": {
-									"referenceName": "archieve_source",
+									"referenceName": "main_archive_source",
 									"type": "DatasetReference"
 								},
 								"logStorageSettings": {
