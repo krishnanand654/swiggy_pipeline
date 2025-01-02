@@ -173,7 +173,7 @@
 				"typeProperties": {
 					"variableName": "append_var",
 					"value": {
-						"value": "@concat('{\"startTime\":\"',activity('Notebook2').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook2').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook2').ActivityRunId,'\",\"processName\":\"Notebook2\",\"status\":\"',activity('Notebook2').Status,'\",\"errorMessage\":\"', if(equals(activity('Notebook2').output?.runError, null), activity('Notebook2').Error?.Message, activity('Notebook2').output?.runError),'\"}')\n",
+						"value": "@concat(\n    '{\"startTime\":\"', activity('Notebook2').ExecutionStartTime,\n    '\",\"endTime\":\"', activity('Notebook2').ExecutionEndTime,\n    '\",\"processId\":\"', activity('Notebook2').ActivityRunId,\n    '\",\"processName\":\"Notebook2',\n    '\",\"status\":\"', activity('Notebook2').Status,\n    '\",\"errorMessage\":\"', \n        if(\n            equals(activity('Notebook2').output?.runError, null), \n            activity('Notebook2').Error?.Message, \n            activity('Notebook2').output?.runError\n        ),\n    '\",\"pipelineName\":\"', pipeline().Pipeline,\n    '\"}'\n)\n",
 						"type": "Expression"
 					}
 				}
@@ -193,7 +193,7 @@
 				"typeProperties": {
 					"variableName": "append_var",
 					"value": {
-						"value": "@concat('{\"startTime\":\"',activity('Notebook1').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook1').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook1').ActivityRunId,'\",\"processName\":\"Notebook1\",\"status\":\"',activity('Notebook1').Status,'\",\"errorMessage\":\"', if(equals(activity('Notebook1').output?.runError, null), activity('Notebook1').Error?.Message, activity('Notebook1').output?.runError), '\"}')\n",
+						"value": "@concat('{\"startTime\":\"',activity('Notebook1').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook1').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook1').ActivityRunId,'\",\"processName\":\"Notebook1\",\"status\":\"',activity('Notebook1').Status,'\",\"errorMessage\":\"', if(equals(activity('Notebook1').output?.runError, null), activity('Notebook1').Error?.Message, activity('Notebook1').output?.runError), \n '\",\"pipelineName\":\"',pipeline().Pipeline,\n'\"}')\n",
 						"type": "Expression"
 					}
 				}
@@ -213,7 +213,7 @@
 				"typeProperties": {
 					"variableName": "append_var",
 					"value": {
-						"value": "@concat('{\"startTime\":\"',utcNow(),'\",\"endTime\":\"',utcNow(),'\",\"processId\":\"', activity('Archive').ActivityRunId,'\",\"processName\":\"Archive\",\"status\":\"',activity('Archive').Status,'\",\"errorMessage\":\"',activity('Archive').Error?.message,'\"}')\n",
+						"value": "@concat(\n    '{\"startTime\":\"', utcNow(),\n    '\",\"endTime\":\"', utcNow(),\n    '\",\"processId\":\"', activity('Archive').ActivityRunId,\n    '\",\"processName\":\"Archive',\n    '\",\"status\":\"', activity('Archive').Status,\n    '\",\"errorMessage\":\"', activity('Archive').Error?.message,\n    '\",\"pipelineName\":\"', pipeline().Pipeline,\n    '\"}'\n)\n",
 						"type": "Expression"
 					}
 				}
@@ -353,6 +353,13 @@
 											"type": "Expression"
 										},
 										"type": "String"
+									},
+									"Pipeline_Name": {
+										"value": {
+											"value": "@json(variables('log')).pipelineName",
+											"type": "Expression"
+										},
+										"type": "String"
 									}
 								}
 							},
@@ -379,7 +386,7 @@
 				"typeProperties": {
 					"variableName": "append_var",
 					"value": {
-						"value": "@concat('{\"startTime\":\"',activity('Git_to_DataLake').ExecutionStartTime,'\",\"endTime\":\"',activity('Git_to_DataLake').ExecutionEndTime,'\",\"processId\":\"', activity('Git_to_DataLake').ActivityRunId,'\",\"processName\":\"Copy Data\",\"status\":\"',activity('Git_to_DataLake').Status,'\",\"errorMessage\":\"',activity('Git_to_DataLake').Error?.message,'\"}')\n",
+						"value": "@concat(\n    '{\"startTime\":\"', activity('Git_to_DataLake').ExecutionStartTime,\n    '\",\"endTime\":\"', activity('Git_to_DataLake').ExecutionEndTime,\n    '\",\"processId\":\"', activity('Git_to_DataLake').ActivityRunId,\n    '\",\"processName\":\"Copy Data',\n    '\",\"status\":\"', activity('Git_to_DataLake').Status,\n    '\",\"errorMessage\":\"', activity('Git_to_DataLake').Error?.message,\n    '\",\"pipelineName\":\"',pipeline().Pipeline,\n    '\"}'\n)",
 						"type": "Expression"
 					}
 				}
@@ -507,7 +514,7 @@
 				"typeProperties": {
 					"variableName": "append_var",
 					"value": {
-						"value": "@concat(\n    '{\"startTime\":\"', utcNow(), '\",',\n    '\"endTime\":\"', utcNow(), '\",',\n    '\"processId\":\"', \n        if(\n            activity('Get Metadata1').output.exists,\n            activity('Delete1').ActivityRunId, \n            activity('Fail1').ActivityRunId\n        ),\n    '\",\"processName\":\"Delete1\",',\n    '\"status\":\"', \n        if(\n            activity('Get Metadata1').output.exists,\n            activity('Delete1').Status, \n            'Failed'\n        ),\n    '\",',\n    '\"errorMessage\":\"',\n        if(\n            activity('Get Metadata1').output.exists,\n            activity('Delete1').Error?.message, \n            activity('Fail1').output.message\n        ),\n    '\"}'\n)",
+						"value": "@concat(\n    '{\"startTime\":\"', utcNow(), '\",',\n    '\"endTime\":\"', utcNow(), '\",',\n    '\"processId\":\"', \n        if(\n            activity('Get Metadata1').output.exists,\n            activity('Delete1').ActivityRunId, \n            activity('Fail1').ActivityRunId\n        ),\n    '\",\"processName\":\"Delete1\",',\n    '\"status\":\"', \n        if(\n            activity('Get Metadata1').output.exists,\n            activity('Delete1').Status, \n            'Failed'\n        ),\n    '\",',\n    '\"errorMessage\":\"',\n        if(\n            activity('Get Metadata1').output.exists,\n            activity('Delete1').Error?.message, \n            activity('Fail1').output.message\n        ),\n     '\",\"pipelineName\":\"',pipeline().Pipeline,\n    '\"}'\n\n)",
 						"type": "Expression"
 					}
 				}
@@ -554,7 +561,7 @@
 				"typeProperties": {
 					"variableName": "append_var",
 					"value": {
-						"value": "@concat('{\"startTime\":\"',activity('Notebook3').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook3').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook3').ActivityRunId,'\",\"processName\":\"Notebook3\",\"status\":\"',activity('Notebook3').Status,'\",\"errorMessage\":\"', if(equals(activity('Notebook3').output?.runError, null), activity('Notebook3').Error?.Message, activity('Notebook3').output?.runError),'\"}')",
+						"value": "@concat(\n    '{\"startTime\":\"', activity('Notebook3').ExecutionStartTime,\n    '\",\"endTime\":\"', activity('Notebook3').ExecutionEndTime,\n    '\",\"processId\":\"', activity('Notebook3').ActivityRunId,\n    '\",\"processName\":\"Notebook3',\n    '\",\"status\":\"', activity('Notebook3').Status,\n    '\",\"errorMessage\":\"', \n        if(\n            equals(activity('Notebook3').output?.runError, null), \n            activity('Notebook3').Error?.Message, \n            activity('Notebook3').output?.runError\n        ),\n    '\",\"pipelineName\":\"', pipeline().Pipeline,\n    '\"}'\n)\n",
 						"type": "Expression"
 					}
 				}
