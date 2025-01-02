@@ -278,7 +278,7 @@
 						"type": "AzureBlobFSLocation",
 						"fileName": "swiggy.json",
 						"folderPath": {
-							"value": "@concat('Archive/swiggyx_', formatDateTime(utcNow(), 'yyyyMMddHHmmss'))",
+							"value": "@concat('Archive/swiggy_', formatDateTime(utcNow(), 'yyyyMMddHHmmss'))",
 							"type": "Expression"
 						},
 						"fileSystem": "swiggydataset"
