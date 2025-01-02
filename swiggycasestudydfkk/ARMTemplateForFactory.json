@@ -2388,7 +2388,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"dataset": {
-											"referenceName": "archieve_source",
+											"referenceName": "main_archive_source",
 											"type": "DatasetReference",
 											"parameters": {}
 										},
@@ -2499,7 +2499,6 @@
 				"[concat(variables('factoryId'), '/datasets/main_archive_source')]",
 				"[concat(variables('factoryId'), '/datasets/main_archive_sink')]",
 				"[concat(variables('factoryId'), '/linkedServices/sqlconnector')]",
-				"[concat(variables('factoryId'), '/datasets/archieve_source')]",
 				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
 			]
 		},
