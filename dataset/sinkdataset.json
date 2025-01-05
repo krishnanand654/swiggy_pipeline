@@ -11,7 +11,7 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "swiggy.json",
-				"folderPath": "json",
+				"folderPath": "main/bronze",
 				"fileSystem": "swiggydataset"
 			}
 		},
