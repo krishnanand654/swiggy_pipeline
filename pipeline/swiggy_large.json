@@ -429,7 +429,7 @@
 				}
 			},
 			{
-				"name": "If Condition1",
+				"name": "If File exist or not",
 				"type": "IfCondition",
 				"dependsOn": [
 					{
@@ -504,7 +504,7 @@
 				"type": "AppendVariable",
 				"dependsOn": [
 					{
-						"activity": "If Condition1",
+						"activity": "If File exist or not",
 						"dependencyConditions": [
 							"Completed"
 						]
@@ -572,6 +572,9 @@
 				"type": "Array"
 			},
 			"log": {
+				"type": "String"
+			},
+			"error": {
 				"type": "String"
 			}
 		},
