@@ -1,0 +1,613 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name"
+		},
+		"AzureDatabricks1": {
+			"type": "string"
+		},
+		"sqlconnector": {
+			"type": "string"
+		},
+		"fromgithub": {
+			"type": "string"
+		},
+		"AzureDataLakeStorage1": {
+			"type": "string"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/swiggy')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Git_to_DataLake",
+						"type": "Copy",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "GET"
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "sourcedataset",
+								"type": "DatasetReference"
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "sinkdataset",
+								"type": "DatasetReference"
+							}
+						]
+					},
+					{
+						"name": "Notebook1",
+						"type": "DatabricksNotebook",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Git_to_DataLake",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/kk_insights@outlook.com/swiggy_pipeline/Swiggy_ETL/bronze_to_silver"
+						},
+						"linkedServiceName": {
+							"referenceName": "[parameters('AzureDatabricks1')]",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Notebook2",
+						"type": "DatabricksNotebook",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Notebook1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/kk_insights@outlook.com/swiggy_pipeline/Swiggy_ETL/silver_to_gold"
+						},
+						"linkedServiceName": {
+							"referenceName": "[parameters('AzureDatabricks1')]",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Append Notebook2 Log",
+						"type": "AppendVariable",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Notebook2",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "append_var",
+							"value": {
+								"value": "@concat('{\"startTime\":\"',activity('Notebook2').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook2').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook2').ActivityRunId,'\",\"processName\":\"Notebook2\",\"status\":\"',activity('Notebook2').Status,'\",\"errorMessage\":\"', if(equals(activity('Notebook2').output?.runError, null), activity('Notebook2').Error?.Message, activity('Notebook2').output?.runError),'\"}')\n",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Append Notebook1 Log",
+						"type": "AppendVariable",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Notebook1",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "append_var",
+							"value": {
+								"value": "@concat('{\"startTime\":\"',activity('Notebook1').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook1').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook1').ActivityRunId,'\",\"processName\":\"Notebook1\",\"status\":\"',activity('Notebook1').Status,'\",\"errorMessage\":\"', if(equals(activity('Notebook1').output?.runError, null), activity('Notebook1').Error?.Message, activity('Notebook1').output?.runError), '\"}')\n",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Append Archive Log",
+						"type": "AppendVariable",
+						"dependsOn": [
+							{
+								"activity": "Archive",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "append_var",
+							"value": {
+								"value": "@concat(\n  '{\"startTime\":\"', activity('Archive').ExecutionStartTime, '\",',\n  '\"endTime\":\"', activity('Archive').ExecutionEndTime, '\",',\n  '\"processId\":\"', activity('Archive').ActivityRunId, '\",',\n  '\"processName\":\"Archive\",',\n  '\"status\":\"', activity('Archive').Status, '\",',\n  '\"errorMessage\":\"', \n  if(\n    not(empty(activity('Archive').Error?.message)),\n    json(activity('Archive').Error?.message).Message,\n    ''\n  ),\n  '\"}'\n)\n",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Append Notebook2 Log",
+								"dependencyConditions": [
+									"Completed",
+									"Skipped"
+								]
+							},
+							{
+								"activity": "Append Notebook1 Log",
+								"dependencyConditions": [
+									"Completed",
+									"Skipped"
+								]
+							},
+							{
+								"activity": "Append Archive Log",
+								"dependencyConditions": [
+									"Completed",
+									"Skipped"
+								]
+							},
+							{
+								"activity": "Append Copy Data Log",
+								"dependencyConditions": [
+									"Completed",
+									"Skipped"
+								]
+							},
+							{
+								"activity": "Append Notebook3 Log",
+								"dependencyConditions": [
+									"Completed",
+									"Skipped"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@variables('append_var')",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Set variable3",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "log",
+										"value": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Stored procedure_copy1",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Set variable3",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[usp_LogPipelineExecution]",
+										"storedProcedureParameters": {
+											"End_Time": {
+												"value": {
+													"value": "@json(variables('log')).endTime",
+													"type": "Expression"
+												},
+												"type": "Datetime"
+											},
+											"Message": {
+												"value": {
+													"value": "@json(variables('log')).errorMessage",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Process_Id": {
+												"value": {
+													"value": "@json(variables('log')).processId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Process_Name": {
+												"value": {
+													"value": "@json(variables('log')).processName",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Start_Time": {
+												"value": {
+													"value": "@json(variables('log')).startTime",
+													"type": "Expression"
+												},
+												"type": "Datetime"
+											},
+											"Status": {
+												"value": {
+													"value": "@json(variables('log')).status",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "[parameters('sqlconnector')]",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Append Copy Data Log",
+						"type": "AppendVariable",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Git_to_DataLake",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "append_var",
+							"value": {
+								"value": "@concat('{\"startTime\":\"',activity('Git_to_DataLake').ExecutionStartTime,'\",\"endTime\":\"',activity('Git_to_DataLake').ExecutionEndTime,'\",\"processId\":\"', activity('Git_to_DataLake').ActivityRunId,'\",\"processName\":\"Copy Data\",\"status\":\"',activity('Git_to_DataLake').Status,'\",\"errorMessage\":\"',activity('Git_to_DataLake').Error?.message,'\"}')\n",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Notebook3",
+						"type": "DatabricksNotebook",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Notebook2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/kk_insights@outlook.com/swiggy_pipeline/Swiggy_ETL/Query"
+						},
+						"linkedServiceName": {
+							"referenceName": "[parameters('AzureDatabricks1')]",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Append Notebook3 Log",
+						"type": "AppendVariable",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Notebook3",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "append_var",
+							"value": {
+								"value": "@concat('{\"startTime\":\"',activity('Notebook3').ExecutionStartTime,'\",\"endTime\":\"',activity('Notebook3').ExecutionEndTime,'\",\"processId\":\"',activity('Notebook3').ActivityRunId,'\",\"processName\":\"Notebook3\",\"status\":\"',activity('Notebook3').Status,'\",\"errorMessage\":\"', if(equals(activity('Notebook3').output?.runError, null), activity('Notebook3').Error?.Message, activity('Notebook3').output?.runError),'\"}')\n",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Archive",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Notebook3",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Archive",
+								"type": "DataFlowReference"
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"variables": {
+					"append_var": {
+						"type": "Array"
+					},
+					"log": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-12-11T10:13:45Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/sourcedataset')]",
+				"[concat(variables('factoryId'), '/datasets/sinkdataset')]",
+				"[concat(variables('factoryId'), '/dataflows/Archive')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sourcedataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('fromgithub')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sinkdataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('AzureDataLakeStorage1')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "swiggy.json",
+						"folderPath": "main/bronze",
+						"fileSystem": "swiggydataset"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Archive')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "main_archive_source",
+								"type": "DatasetReference"
+							},
+							"name": "datalakerawdata"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "archive_sink",
+								"type": "DatasetReference"
+							},
+							"name": "ToArchiveFolder",
+							"rejectedDataLinkedService": {
+								"referenceName": "[parameters('AzureDataLakeStorage1')]",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     purgeFiles: true,",
+						"     documentForm: 'documentPerLine') ~> datalakerawdata",
+						"datalakerawdata sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     outputAssertFailedRows: true,",
+						"     assertFailure_fileSystem: 'swiggydataset',",
+						"     assertFailure_folderPath: 'Error_Log') ~> ToArchiveFolder"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/main_archive_source')]",
+				"[concat(variables('factoryId'), '/datasets/archive_sink')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/main_archive_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('AzureDataLakeStorage1')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "swiggy.json",
+						"folderPath": "main/bronze",
+						"fileSystem": "swiggydataset"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/archive_sink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('AzureDataLakeStorage1')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "*.json",
+						"folderPath": {
+							"value": "@concat('Archive/swiggy_', formatDateTime(utcNow(), 'yyyyMMddHHmmss'))",
+							"type": "Expression"
+						},
+						"fileSystem": "swiggydataset"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		}
+	]
+}
